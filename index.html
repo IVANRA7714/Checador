@@ -1,38 +1,101 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checador GPS</title>
+    <title>Asistencia - FINEDUC</title>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 50px 20px; background-color: #f8f9fa; }
-        .btn { background-color: #28a745; color: white; padding: 20px; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; width: 100%; max-width: 300px; cursor: pointer; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; padding: 40px 20px; background-color: #f0f2f5; color: #333; }
+        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 380px; margin: auto; }
+        .logo { width: 100%; max-width: 250px; margin-bottom: 20px; }
+        h2 { color: #555; font-size: 1.1em; margin-bottom: 25px; border-bottom: 2px solid #f0f2f5; padding-bottom: 10px; }
+        label { display: block; text-align: left; font-weight: bold; margin-bottom: 8px; color: #666; }
+        select { width: 100%; padding: 12px; margin-bottom: 25px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; background-color: #fff; appearance: none; }
+        .btn { background-color: #e5004e; color: white; padding: 18px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; width: 100%; cursor: pointer; transition: background 0.3s; box-shadow: 0 4px 10px rgba(229, 0, 78, 0.3); }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { background-color: #ccc; box-shadow: none; cursor: not-allowed; }
+        #mensaje { margin-top: 25px; font-weight: bold; display: none; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; display: block !important; }
     </style>
 </head>
 <body>
-    <h2>Registrar Asistencia</h2>
-    <p>Haz clic abajo para obtener tu ubicación y abrir el formulario:</p>
-    <button onclick="registrar()" class="btn">📍 MARCAR ENTRADA/SALIDA</button>
 
-    <script>
-        function registrar() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
-                    const coords = lat + "," + lon;
-                    
-                    // Tu link de Google Forms pre-llenado
-                    const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSeLYHCdGvCT6yoz3qumMAGZsyQ1iu67HaflVU1JzfNQJ2QsWA/viewform?usp=pp_url&entry.487703174=";
-                    
-                    window.location.href = baseUrl + coords;
-                }, function(error) {
-                    alert("Error: Debes activar el GPS y dar permiso.");
-                });
-            } else {
-                alert("Tu navegador no soporta GPS.");
-            }
+<div class="container">
+    <img src="https://lh3.googleusercontent.com/d/1JRl8mk0N5a9ST6iJFDojAw9cNPvQ7Cos" alt="Logo FINEDUC" class="logo">
+    
+    <h2>SISTEMA DE ASISTENCIA</h2>
+    
+    <label for="empleado">Selecciona tu nombre:</label>
+    <select id="empleado">
+        <option value="">-- Seleccionar --</option>
+        <option value="Cesar Noé">Cesar Noé</option>
+        <option value="Araceli Gallegos">Araceli Gallegos</option>
+        <option value="Iván Rodríguez">Iván Rodríguez</option>
+    </select>
+
+    <button onclick="registrarAsistencia()" id="btnEnviar" class="btn">MARCAR ENTRADA / SALIDA</button>
+    
+    <p id="mensaje"></p>
+</div>
+
+<script>
+    function registrarAsistencia() {
+        const nombre = document.getElementById("empleado").value;
+        const btn = document.getElementById("btnEnviar");
+        const msg = document.getElementById("mensaje");
+
+        if (!nombre) {
+            alert("Por favor, selecciona tu nombre.");
+            return;
         }
-    </script>
+
+        btn.disabled = true;
+        btn.innerText = "Registrando...";
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                const coords = `${lat},${lon}`;
+
+                // Configuración de IDs proporcionados
+                const formID = "1FAIpQLSeLYHCdGvCT6yoz3qumMAGZsyQ1iu67HaflVU1JzfNQJ2QsWA";
+                const entryNombre = "entry.1574520594"; 
+                const entryUbicacion = "entry.487703174";
+
+                const finalURL = `https://docs.google.com/forms/d/e/${formID}/formResponse?${entryNombre}=${encodeURIComponent(nombre)}&${entryUbicacion}=${coords}&submit=Submit`;
+
+                // Envío en segundo plano (Google Forms permite esto mediante peticiones sin CORS)
+                fetch(finalURL, { mode: 'no-cors' })
+                    .then(() => {
+                        msg.className = "success";
+                        msg.innerText = "¡Asistencia registrada con éxito!";
+                        btn.innerText = "✓ REGISTRADO";
+                        // Limpiar selección después de 3 segundos
+                        setTimeout(() => {
+                            document.getElementById("empleado").value = "";
+                            btn.disabled = false;
+                            btn.innerText = "MARCAR ENTRADA / SALIDA";
+                            msg.className = "";
+                            msg.innerText = "";
+                        }, 3000);
+                    })
+                    .catch(() => {
+                        alert("Error de conexión. Inténtalo de nuevo.");
+                        btn.disabled = false;
+                        btn.innerText = "MARCAR ENTRADA / SALIDA";
+                    });
+
+            }, function() {
+                alert("Error: Es obligatorio activar el GPS para registrar tu asistencia.");
+                btn.disabled = false;
+                btn.innerText = "MARCAR ENTRADA / SALIDA";
+            }, { enableHighAccuracy: true });
+        } else {
+            alert("Tu dispositivo no es compatible con GPS.");
+        }
+    }
+</script>
+
 </body>
 </html>
