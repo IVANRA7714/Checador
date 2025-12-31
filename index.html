@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checador GPS</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px 20px; background-color: #f8f9fa; }
+        .btn { background-color: #28a745; color: white; padding: 20px; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; width: 100%; max-width: 300px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h2>Registrar Asistencia</h2>
+    <p>Haz clic abajo para obtener tu ubicación y abrir el formulario:</p>
+    <button onclick="registrar()" class="btn">📍 MARCAR ENTRADA</button>
+
+    <script>
+        function registrar() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    const coords = lat + "," + lon;
+                    
+                    // Tu link de Google Forms pre-llenado
+                    const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSeLYHCdGvCT6yoz3qumMAGZsyQ1iu67HaflVU1JzfNQJ2QsWA/viewform?usp=pp_url&entry.487703174=";
+                    
+                    window.location.href = baseUrl + coords;
+                }, function(error) {
+                    alert("Error: Debes activar el GPS y dar permiso.");
+                });
+            } else {
+                alert("Tu navegador no soporta GPS.");
+            }
+        }
+    </script>
+</body>
+</html>
