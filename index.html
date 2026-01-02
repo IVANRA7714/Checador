@@ -21,7 +21,7 @@
 <body>
 
 <div class="container">
-    <img src="https://lh3.googleusercontent.com/d/1JRl8mk0N5a9ST6iJFDojAw9cNPvQ7Cos" alt="Logo FINEDUC" class="logo">
+    <img src="https://drive.google.com/thumbnail?id=1JRl8mk0N5a9ST6iJFDojAw9cNPvQ7Cos&sz=w500" alt="Logo FINEDUC" class="logo">
     
     <h2>SISTEMA DE ASISTENCIA</h2>
     
@@ -30,7 +30,6 @@
         <option value="">-- Seleccionar --</option>
         <option value="Cesar Noé">Cesar Noé</option>
         <option value="Araceli Gallegos">Araceli Gallegos</option>
-         <option value="Evert Rodríguez">Evert Rodríguez</option>
         <option value="Iván Rodríguez">Iván Rodríguez</option>
     </select>
 
@@ -58,21 +57,22 @@
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
                 const coords = `${lat},${lon}`;
+                
+                // Captura de información del dispositivo (User Agent)
+                const infoDispositivo = navigator.userAgent;
 
-                // Configuración de IDs proporcionados
                 const formID = "1FAIpQLSeLYHCdGvCT6yoz3qumMAGZsyQ1iu67HaflVU1JzfNQJ2QsWA";
                 const entryNombre = "entry.1574520594"; 
                 const entryUbicacion = "entry.487703174";
+                const entryDispositivo = "entry.817706990"; // El ID que me pasaste
 
-                const finalURL = `https://docs.google.com/forms/d/e/${formID}/formResponse?${entryNombre}=${encodeURIComponent(nombre)}&${entryUbicacion}=${coords}&submit=Submit`;
+                const finalURL = `https://docs.google.com/forms/d/e/${formID}/formResponse?${entryNombre}=${encodeURIComponent(nombre)}&${entryUbicacion}=${coords}&${entryDispositivo}=${encodeURIComponent(infoDispositivo)}&submit=Submit`;
 
-                // Envío en segundo plano (Google Forms permite esto mediante peticiones sin CORS)
                 fetch(finalURL, { mode: 'no-cors' })
                     .then(() => {
                         msg.className = "success";
                         msg.innerText = "¡Asistencia registrada con éxito!";
                         btn.innerText = "✓ REGISTRADO";
-                        // Limpiar selección después de 3 segundos
                         setTimeout(() => {
                             document.getElementById("empleado").value = "";
                             btn.disabled = false;
@@ -88,12 +88,12 @@
                     });
 
             }, function() {
-                alert("Error: Es obligatorio activar el GPS para registrar tu asistencia.");
+                alert("Error: Es obligatorio activar el GPS.");
                 btn.disabled = false;
                 btn.innerText = "MARCAR ENTRADA / SALIDA";
             }, { enableHighAccuracy: true });
         } else {
-            alert("Tu dispositivo no es compatible con GPS.");
+            alert("Dispositivo no compatible con GPS.");
         }
     }
 </script>
