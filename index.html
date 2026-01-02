@@ -16,7 +16,7 @@
         .btn:disabled { background-color: #ccc; box-shadow: none; cursor: not-allowed; }
         #mensaje { margin-top: 25px; font-weight: bold; display: none; padding: 10px; border-radius: 5px; }
         .success { background-color: #d4edda; color: #155724; display: block !important; }
-        .device-info { font-size: 10px; color: #999; margin-top: 15px; }
+        .device-info { font-size: 10px; color: #aaa; margin-top: 15px; font-style: italic; }
     </style>
 </head>
 <body>
@@ -31,8 +31,6 @@
         <option value="">-- Seleccionar --</option>
         <option value="Cesar Noé">Cesar Noé</option>
         <option value="Araceli Gallegos">Araceli Gallegos</option>
-        <option value="Alfonso Morales">Alfonso Morales</option>
-        <option value="Evert Rodríguez">Evert Rodríguez</option>
         <option value="Iván Rodríguez">Iván Rodríguez</option>
     </select>
 
@@ -43,7 +41,7 @@
 </div>
 
 <script>
-    // 1. Función para generar o recuperar el ID único del dispositivo
+    // 1. Obtener o Generar ID Único de Dispositivo
     function getDeviceId() {
         let deviceId = localStorage.getItem('fineduc_device_id');
         if (!deviceId) {
@@ -53,8 +51,9 @@
         return deviceId;
     }
 
-    // Mostrar el ID en pantalla de forma discreta para control del admin
-    document.getElementById('debug').innerText = "Equipo: " + getDeviceId();
+    // Mostrar el ID asignado discretamente
+    const currentID = getDeviceId();
+    document.getElementById('debug').innerText = "Dispositivo vinculado: " + currentID;
 
     function registrarAsistencia() {
         const nombre = document.getElementById("empleado").value;
@@ -75,18 +74,21 @@
                 const lon = position.coords.longitude;
                 const coords = `${lat},${lon}`;
                 
-                // 2. Captura de información avanzada del dispositivo
+                // 2. COMBINACIÓN DE INFORMACIÓN (ID + Detalles Técnicos)
                 const deviceID = getDeviceId();
                 const platform = navigator.platform;
                 const ram = navigator.deviceMemory ? navigator.deviceMemory + "GB" : "N/A";
-                const infoFinal = `ID:${deviceID} | Mod:${platform} | RAM:${ram}`;
+                const userAgent = navigator.userAgent; // Opción original
+                
+                // Cadena completa para tu Excel
+                const infoCombinada = `ID:${deviceID} | RAM:${ram} | Plataforma:${platform} | Detalle:${userAgent}`;
 
                 const formID = "1FAIpQLSeLYHCdGvCT6yoz3qumMAGZsyQ1iu67HaflVU1JzfNQJ2QsWA";
                 const entryNombre = "entry.1574520594"; 
                 const entryUbicacion = "entry.487703174";
                 const entryDispositivo = "entry.817706990";
 
-                const finalURL = `https://docs.google.com/forms/d/e/${formID}/formResponse?${entryNombre}=${encodeURIComponent(nombre)}&${entryUbicacion}=${coords}&${entryDispositivo}=${encodeURIComponent(infoFinal)}&submit=Submit`;
+                const finalURL = `https://docs.google.com/forms/d/e/${formID}/formResponse?${entryNombre}=${encodeURIComponent(nombre)}&${entryUbicacion}=${coords}&${entryDispositivo}=${encodeURIComponent(infoCombinada)}&submit=Submit`;
 
                 fetch(finalURL, { mode: 'no-cors' })
                     .then(() => {
@@ -102,18 +104,18 @@
                         }, 3000);
                     })
                     .catch(() => {
-                        alert("Error de conexión. Inténtalo de nuevo.");
+                        alert("Error de envío. Revisa tu conexión.");
                         btn.disabled = false;
                         btn.innerText = "MARCAR ENTRADA / SALIDA";
                     });
 
             }, function() {
-                alert("Error: Es obligatorio activar el GPS para registrar tu asistencia.");
+                alert("Error: Es obligatorio activar el GPS.");
                 btn.disabled = false;
                 btn.innerText = "MARCAR ENTRADA / SALIDA";
             }, { enableHighAccuracy: true });
         } else {
-            alert("Tu dispositivo no es compatible con GPS.");
+            alert("Tu equipo no es compatible con GPS.");
         }
     }
 </script>
